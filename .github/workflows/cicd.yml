@@ -1,0 +1,72 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checking out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setting up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Installing dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Running linting (optional, assumes eslint is configured)
+      - name: Run lint
+        run: npm run lint
+
+      # Running tests
+      - name: Run tests
+        run: npm test
+
+      # Building the application (if applicable)
+      - name: Build
+        run: npm run build
+        if: success()
+
+  # deploy:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+  #   steps:
+  #     # Checking out the repository code
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+      # # Setting up Node.js environment
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     cache: 'npm'
+
+      # # Installing dependencies
+      # - name: Install dependencies
+      #   run: npm ci
+
+      # # Deploying to Heroku (example)
+      # - name: Deploy to Heroku
+      #   env:
+      #     HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      #     HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      #   run: |
+      #     git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git
+      #     git push heroku main
